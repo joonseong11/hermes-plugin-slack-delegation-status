@@ -3,7 +3,7 @@ version: 0.6.3
 description: "Thread-scoped dynamic Slack Assistant status for async delegate-task routing, with fail-open card fallback."
 author: handybus-agent-alex
 license: MIT
-homepage: https://github.com/handybus-agent-alex/hermes-slack-delegation-status
+homepage: https://github.com/joonseong11/hermes-plugin-slack-delegation-status
 tags: [slack, delegation, assistant-status, observability]
 kind: standalone
 portable: true
