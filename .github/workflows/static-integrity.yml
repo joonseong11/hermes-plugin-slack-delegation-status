@@ -18,4 +18,4 @@ jobs:
       - name: Compile repository Python
         run: python -m py_compile __init__.py tests/test_status.py
       - name: Check manifest identity
-        run: 'python -c "from pathlib import Path; s=Path(\"plugin.yaml\").read_text(); assert \"version: 0.6.3\" in s; assert \"homepage: https://github.com/joonseong11/hermes-plugin-slack-delegation-status\" in s"'
+        run: 'python -c "from pathlib import Path; s=Path(\"plugin.yaml\").read_text(); assert \"version: 0.7.1\" in s; assert \"homepage: https://github.com/joonseong11/hermes-plugin-slack-delegation-status\" in s"'

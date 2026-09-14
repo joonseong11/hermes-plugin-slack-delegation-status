@@ -6,27 +6,34 @@ result delivery.
 
 ## Primary UI: Slack Assistant status
 
-For an accepted top-level background delegation, the plugin obtains the
-workspace-routed client from the installed Slack adapter and makes a checked
-`assistant.threads.setStatus` request. It never reads or stores a Slack token.
+For an approved top-level Slack turn, the observer first presents generic request
+analysis. It then presents route decision and delegation preparation when
+`delegate_task` is called, for either a normal synchronous call or a detached
+background call. The plugin obtains the workspace-routed client from the
+installed Slack adapter and makes a checked `assistant.threads.setStatus`
+request. It never reads or stores a Slack token.
 Unlike the adapter's generic `send_typing` helper, the checked request exposes
 API failure to the plugin so the documented bounded fallback can actually run.
 Slack automatically renders the app name before the supplied predicate. The
 plugin therefore sends no `Alex` prefix and selects:
 
-- one active worker: **`비동기 위임 작업 중…`**; multiple workers:
-  **`{count}개 작업을 처리 중…`**; verifier: **`결과를 검증 중…`**.
+- request analysis: **`요청을 분석 중…`**; route decision: **`위임 경로를 결정 중…`**;
+  delegation preparation: **`작업을 준비 중…`**; one worker:
+  **`비동기 위임 작업 중…`**; multiple workers: **`{count}개 작업을 처리 중…`**;
+  verifier: **`결과를 검증 중…`**.
 - partial lanes: **`{done}/{total}개 완료 · {active}개 처리 중…`**;
   stalling: **`작업 응답 지연을 처리 중…`**; stable sampled web/file work:
-  **`자료를 확인 중…`** / **`파일을 확인 중…`**; completion synthesis/writing:
+  **`자료를 확인 중…`** / **`파일을 확인 중…`**; synthesis/writing:
   **`결과를 정리 중…`** / **`답변을 작성 중…`**.
 
 In the Korean Slack client these appear as `Alex 앱이 …`; the native status
 API cannot replace Slack's app-name/`앱이` prefix with `Alex가`.
 
-The gateway explicitly clears typing when the parent turn ends, before it sends
+The plugin keeps an exact-workspace/channel/thread phrase bridge on the active
+Slack adapter so the gateway's two-second typing heartbeat cannot overwrite a
+more specific plugin phase. The gateway explicitly clears typing when the parent turn ends, before it sends
 the parent's short dispatch reply; Slack may also clear status when that reply
-lands. v0.6.3 registers a generation-owned adapter post-delivery callback and
+lands. v0.7.1 retains the generation-owned adapter post-delivery callback and
 reasserts only after the dispatch reply has actually been delivered. This fixes
 the v0.6.1/v0.6.2 race where a fixed two-second timer commonly fired before the
 reply and was immediately erased. The plugin then samples public child activity
@@ -34,8 +41,9 @@ every 30 seconds and sends a 90-second heartbeat (below Slack's two-minute
 expiry). A changed tool-family status requires two matching samples.
 Child completion transitions to synthesis, the completion LLM turn transitions
 to writing, and the turn-final output boundary removes the record so no final
-reply can be followed by an accidental reassertion. It also clears on a new
-human inbound message or the 30-minute maximum age.
+reply can be followed by an accidental reassertion. Pre-authorization inbound
+events are observer-only; per-turn and durable-session hooks own cleanup. The
+30-minute maximum age remains a final safety bound.
 Concurrent background delegations in the same exact route share one status and
 only the final completion clears it.
 
@@ -55,9 +63,21 @@ plugins:
           team_id: "<optional Slack workspace ID>"
           chat_id: "<approved Slack conversation ID>"
           thread_id: "<thread timestamp or *>"
-        status_text: "비동기 위임 작업 중…"
-        multiple_status_text: "{count}개 작업을 처리 중…"
-        verifier_status_text: "결과를 검증 중…"
+        # Legacy keys remain supported. `status_texts` takes precedence and may
+        # set any named lifecycle state: processing, routing, delegating,
+        # worker, multiple, partial, verifier, synthesis, writing, stalled,
+        # web, file, fallback.
+        status_texts:
+          processing: "요청을 분석 중…"
+          routing: "위임 경로를 결정 중…"
+          delegating: "작업을 준비 중…"
+          worker: "비동기 위임 작업 중…"
+          verifier: "결과를 검증 중…"
+          synthesis: "결과를 정리 중…"
+          writing: "답변을 작성 중…"
+        status_text: "비동기 위임 작업 중…" # legacy worker override
+        multiple_status_text: "{count}개 작업을 처리 중…" # legacy override
+        verifier_status_text: "결과를 검증 중…" # legacy override
         reassert_delay_seconds: 2
         sample_seconds: 30
         refresh_seconds: 90
@@ -94,16 +114,24 @@ route, then discards recovery state.
 
 ## Lifecycle and logs
 
-- `pre_gateway_dispatch`: clear scoped status on new inbound user message.
-- `pre_tool_call` / `post_tool_call`: accept only successful background
-  `delegate_task` work.
-- `pre_llm_call`: mark authenticated completion turns as answer writing.
-- `transform_llm_output`: release finalizing rows at the actual output boundary.
-- `subagent_start` / `subagent_stop`: aggregate child lifecycle and transition
-  the final child into result synthesis.
+- `pre_llm_call`: show scoped request analysis; consume only the routing
+  plugin's authenticated, non-sensitive lifecycle contract for async completion
+  ownership and worker-to-verifier continuation.
+- `pre_tool_call` / `post_tool_call`: show `route_turn` routing state, publish a candidate before delegation execution,
+  then promote both successful background handles and synchronous results.
+- `subagent_start` / `subagent_stop`: aggregate worker/reviewer lifecycle and
+  transition the final child into synthesis.
+- `transform_llm_output` / `post_llm_call`: safely infer response writing at
+  the output boundary, then clear after delivery without reasserting stale work.
+- `on_session_end`: per-turn cleanup only; detached background rows survive.
+- `on_session_finalize`: durable conversation-boundary cleanup for every row
+  owned by the finalized session.
+- `pre_gateway_dispatch`: observe scope only and never mutate lifecycle state,
+  because Hermes invokes it before sender authorization.
 
-INFO logs report lifecycle state/counts and route identifiers, never goals or
-arguments. Transport/persistence failures are non-blocking.
+INFO logs are structured lifecycle counters/outcomes only; they exclude route
+identifiers, goals, arguments, labels, summaries, and errors. Transport and
+persistence failures are non-blocking.
 
 ## Verify and activate
 

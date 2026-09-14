@@ -2,13 +2,14 @@
 
 | Status plugin | Hermes | Routing plugin | Evidence |
 |---|---|---|---|
+| 0.7.1 | 0.21.1, `fef0e16f` | 0.2.9 | sync/background + real-enum + authenticated completion-chain + heartbeat bridge + per-turn/finalize regression tests |
 | 0.6.3 | 0.20.6 (2026.8.27), `01740f35` | 0.2.8 | installed adapter/post-delivery/async-registry contract probes + 22 dynamic status/lifecycle/privacy/fallback tests |
 
 Verified Hermes contracts:
 
 - `pre_gateway_dispatch`, `pre_tool_call`, `post_tool_call`, `pre_llm_call`,
-  `post_llm_call`, `transform_llm_output`, `on_session_end`, `subagent_start`,
-  and `subagent_stop` plugin hooks.
+  `post_llm_call`, `transform_llm_output`, per-turn `on_session_end`, durable
+  `on_session_finalize`, `subagent_start`, and `subagent_stop` plugin hooks.
 - A background `delegate_task` result with `mode=background` and
   `delegation_id`.
 - Slack session context containing exact `chat_id`, `thread_id`, and (when
@@ -22,8 +23,10 @@ Verified Hermes contracts:
 - A live gateway event loop for thread-safe delayed reassert/refresh.
 - `tools.async_delegation.list_async_delegations()` public status and
   `children_activity` fields, correlated only by exact `delegation_id`.
-- `delegate-task-routing.delegation_phase_for_turn`, which exposes only the
-  generic `worker`/`verifier` phase and no goal, label, model, or tool argument.
+- `delegate-task-routing.delegation_phase_for_turn` and
+  `delegation_lifecycle_for_turn`, which expose only generic phase/mode,
+  authenticated owned delegation IDs, and dispatch state—never goals, labels,
+  models, toolsets, arguments, or result content.
 
 The plugin is rollout fail-closed: without configured exact `scope.chat_id` and
 `scope.thread_id`, it performs no outbound status call. It does not touch other
