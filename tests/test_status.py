@@ -1,5 +1,6 @@
 import asyncio
 import importlib.util
+import sys
 import time
 from pathlib import Path
 
@@ -252,6 +253,14 @@ def test_restart_and_pre_auth_inbound_observation_never_mutates_rows(monkeypatch
     source.thread_id = ROUTE[2]
     instance.on_pre_gateway_dispatch(type("Event", (), {"source": source()})())
     assert instance._active
+
+
+def test_queue_route_never_imports_gateway_during_plugin_registration(monkeypatch):
+    instance = MODULE.DelegationStatus(Context())
+    monkeypatch.delitem(sys.modules, "gateway.run", raising=False)
+
+    assert not instance._queue_route(ROUTE)
+    assert "gateway.run" not in sys.modules
 
 
 def test_real_platform_enum_pre_auth_inbound_preserves_exact_route():

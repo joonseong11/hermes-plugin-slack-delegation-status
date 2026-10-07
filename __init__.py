@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import sys
 import threading
 import time
 from collections.abc import Mapping
@@ -750,8 +751,14 @@ class DelegationStatus:
 
     def _queue_route(self, route: tuple[str, str, str], delay: float = 0.0, force_clear: bool = False) -> bool:
         try:
-            from gateway.run import _gateway_runner_ref
-            runner = _gateway_runner_ref()
+            # Plugin registration runs while gateway.run is still importing.  Importing
+            # it here can wait on that import lock and deadlock startup; only use an
+            # already-initialized module for runtime publication.
+            gateway_run = sys.modules.get("gateway.run")
+            get_runner = getattr(gateway_run, "_gateway_runner_ref", None)
+            if not callable(get_runner):
+                raise RuntimeError
+            runner = get_runner()
             loop = getattr(runner, "_gateway_loop", None) if runner else None
             if loop is None or loop.is_closed():
                 raise RuntimeError
