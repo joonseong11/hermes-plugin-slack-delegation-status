@@ -1,6 +1,6 @@
 name: slack-delegation-status
-version: 0.6.3
-description: "Thread-scoped dynamic Slack Assistant status for async delegate-task routing, with fail-open card fallback."
+version: 0.7.1
+description: "Thread-scoped Slack Assistant lifecycle status for request processing and sync/background delegate-task routing, with fail-open card fallback."
 author: handybus-agent-alex
 license: MIT
 homepage: https://github.com/joonseong11/hermes-plugin-slack-delegation-status
@@ -8,4 +8,4 @@ tags: [slack, delegation, assistant-status, observability]
 kind: standalone
 portable: true
 requires_plugins: [delegate-task-routing]
-provides_hooks: [pre_gateway_dispatch, pre_tool_call, post_tool_call, pre_llm_call, post_llm_call, transform_llm_output, on_session_end, subagent_start, subagent_stop]
+provides_hooks: [pre_gateway_dispatch, pre_tool_call, post_tool_call, pre_llm_call, post_llm_call, transform_llm_output, on_session_end, on_session_finalize, subagent_start, subagent_stop]
