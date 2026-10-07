@@ -61,7 +61,7 @@ A tag says the code is in `main` and passed static checks. It does not say the r
 ## CHANGELOG rules
 
 - The date in a heading is the date the version was tagged.
-- `## [Unreleased]` is allowed only as the topmost section, while its branch is still open. `scripts/check-version.sh` skips it on branches and pull requests and rejects it on a tag. Replace it with the version and date in the final commit, before merging.
+- `## [Unreleased]` is allowed only as the topmost section, while its branch is still open. `scripts/check-version.sh` skips it on feature branches and pull requests and rejects it on `main` and on a tag. It also requires the topmost release heading to have the full `## [X.Y.Z] - YYYY-MM-DD` form. Replace it with the version and date in the final commit, before merging.
 - Never edit the section of a version that is already tagged, except to correct a factual error.
 
 ## Known gaps in history
