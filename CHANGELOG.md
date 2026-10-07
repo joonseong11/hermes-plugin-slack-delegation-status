@@ -35,5 +35,5 @@ Initial release of the plugin, recorded in commit `926a156`. Tagged retroactivel
 ### Added
 
 - Thread-scoped dynamic Slack Assistant status for async `delegate-task-routing` delegation, via the installed Slack adapter's workspace-routed client and `assistant.threads.setStatus`, with a checked request and at most one generic fallback card on API failure.
-- Rollout fail-closed scope: no outbound status call without a configured exact `scope.chat_id` and `scope.thread_id`.
+- Rollout fail-closed scope: no outbound status call without a configured exact `scope.chat_id` and a `scope.thread_id` selector (an exact thread ID, or `*` for any thread in that chat).
 - Verified against Hermes 0.20.6 (2026.8.27) and routing plugin 0.2.8 with 22 dynamic status, lifecycle, privacy and fallback tests (see `COMPATIBILITY.md`).

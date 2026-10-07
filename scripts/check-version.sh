@@ -16,6 +16,9 @@ def one(pattern, text, label):
         raise SystemExit(f"missing {label}")
     return match.group(1)
 
+if len(re.findall(r'^PLUGIN_VERSION\b', code, re.MULTILINE)) != 1:
+    raise SystemExit("PLUGIN_VERSION must be assigned exactly once")
+
 values = {
     "code": one(r'^PLUGIN_VERSION = "([^"]+)"$', code, "PLUGIN_VERSION"),
     "manifest": one(r'^version:\s*([^\s]+)$', manifest, "manifest version"),

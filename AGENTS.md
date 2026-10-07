@@ -66,6 +66,6 @@ A tag says the code is in `main` and passed static checks. It does not say the r
 
 ## Known gaps in history
 
-- **No tags existed before 2026-10-07.** `v0.6.3` was tagged retroactively on `926a156`, the initial-release commit.
+- **No tags existed before 2026-10-07.** `v0.6.3` was tagged retroactively on `926a156`, the initial-release commit. That commit predates `scripts/check-version.sh`, `CHANGELOG.md` and the README release line, so the check cannot be run against it.
 - **Versions between `0.6.3` and `0.7.1` never had their own commits on `main`.** Whatever intermediate versions existed were not committed separately; the history goes from `0.6.3` straight to `0.7.1`.
-- **`release/v0.7.1` (`ea3fb0e`) is not `v0.7.1`.** That branch was never merged, and production ran later edits to `__init__.py` and `tests/test_status.py` that were made on the server on 2026-09-28 and never committed. `v0.7.1` points at the commit that records those deployed bytes together with the release metadata (this scaffolding), not at `ea3fb0e`.
+- **`release/v0.7.1` (`ea3fb0e`) is not `v0.7.1`.** That branch was never merged, and production ran later edits to `__init__.py` and `tests/test_status.py` that were made on the server on 2026-09-28 and never committed. `v0.7.1` points at the last commit of the branch that recorded those deployed bytes and added the release metadata (this file, `CHANGELOG.md`, the version check), not at `ea3fb0e`. This is a one-time exception to step 6 of the release procedure: no single commit both set `0.7.1` and held the code that actually ran.
