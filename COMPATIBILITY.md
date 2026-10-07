@@ -5,6 +5,15 @@
 | 0.7.1 | 0.21.1, `fef0e16f` | 0.2.9 | sync/background + real-enum + authenticated completion-chain + heartbeat bridge + per-turn/finalize regression tests |
 | 0.6.3 | 0.20.6 (2026.8.27), `01740f35` | 0.2.8 | installed adapter/post-delivery/async-registry contract probes + 22 dynamic status/lifecycle/privacy/fallback tests |
 
+## Activation
+
+Tagged and tested is not the same as loaded by the running gateway (see `AGENTS.md`).
+
+| Status plugin | State | Evidence |
+|---|---|---|
+| 0.7.1 | Loaded by the production gateway. Smoke test not re-run for this record. | Gateway log line `Enabled slack-delegation-status v0.7.1 scope_configured=True` at the 2026-10-07 09:58 UTC start. On the same day the seven deployed files matched commit `fc07f3f` by git blob hash. `docs/SLACK_SMOKE_TEST.md` was not run again, so this row does not claim the release is operational. |
+| 0.6.3 | Superseded by 0.7.1. | Not loaded: the gateway log reports 0.7.1. |
+
 Verified Hermes contracts:
 
 - `pre_gateway_dispatch`, `pre_tool_call`, `post_tool_call`, `pre_llm_call`,

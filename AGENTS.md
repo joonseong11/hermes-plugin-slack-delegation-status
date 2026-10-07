@@ -54,7 +54,7 @@ A branch is finished once its pull request is merged. Do not push further commit
 A tag says the code is in `main` and passed static checks. It does not say the running gateway has loaded it.
 
 - Files on disk are imported only when the gateway restarts, and the gateway must not be restarted while work is running (see "Scope, settings, and installation" in the README).
-- Record activation state per version in `COMPATIBILITY.md`.
+- Record activation state per version in the "Activation" table of `COMPATIBILITY.md`, with the evidence (gateway log line, file hashes, smoke test result).
 - Do not describe a version as operational until `docs/SLACK_SMOKE_TEST.md` passes.
 - Never edit plugin files on the server without committing the same bytes here. A server copy that differs from the tag is a defect to be recorded as a new version, not left in place.
 
