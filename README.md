@@ -1,5 +1,7 @@
 # slack-delegation-status
 
+Current release: `v0.7.1`. See [COMPATIBILITY.md](COMPATIBILITY.md) before changing the Hermes version and [CHANGELOG.md](CHANGELOG.md) for release history.
+
 A separate, fail-open presentation observer for `delegate-task-routing`. It
 never overrides `delegate_task`, changes routing, or participates in final
 result delivery.
